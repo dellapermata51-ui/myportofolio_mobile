@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 class MyHomePage extends StatelessWidget {
   MyHomePage({super.key});
   final String npm = "2506656614";
-  final String nama = "Della";
+  final String nama = "Della Permata Prasilda";
   final String kelas = "PBP A";
 
   final List<ItemHomepage> items = [
@@ -13,7 +13,6 @@ class MyHomePage extends StatelessWidget {
   ];
 
   @override
-    @override
   Widget build(BuildContext context) {
     // Scaffold menyediakan struktur visual dasar halaman (AppBar, Body, SnackBar).
     return Scaffold(

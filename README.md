@@ -62,3 +62,11 @@ Tugas 7 mulai dikembangkan menjadi aplikasi mobile menggunakan Flutter. Aplikasi
    - mengubah state yang sudah ada dengan cara yang tidak ikut ter-update, misalnya mengubah tipe sebuah kelas atau `enum`, atau mengubah generic type;
    - menambah atau mengubah dependency di `pubspec.yaml` (jalankan `flutter pub get`, lalu restart) atau menambah asset;
    - mengubah kode native atau konfigurasi platform (Android/iOS), seperti `AndroidManifest.xml`, `Info.plist`, atau menambah plugin native. Untuk ini diperlukan *full restart*, yaitu menghentikan aplikasi lalu menjalankannya lagi.
+
+## AI Disclosure
+- Dalam pengerjaan tugas ini, saya menggunakan Claude (Anthropic) sebagai alat bantu untuk memahami instruksi Tugas 7 dan mencari solusi teknis. AI membantu memberikan arahan dan kode, namun saya tetap menyesuaikan seluruh saran dengan struktur kode proyek `myportofolio_mobile` yang saya kerjakan di Tutorial 08.
+- Saya menggunakan AI secara bertahap berdasarkan checklist tugas, kemudian memeriksa, menyesuaikan, dan menguji hasilnya sendiri dengan `flutter analyze`, `flutter test`, dan `flutter run`. Perubahan juga saya kerjakan dan commit secara bertahap agar proses pengerjaan tetap terdokumentasi di Git.
+- AI tidak bisa menjalankan Flutter maupun emulator, sehingga hasil `flutter analyze`, `flutter test`, serta tampilan kartu, warna, dan `SnackBar` di aplikasi tetap saya cek sendiri. Nama lengkap dan kelas pada `InfoCard` juga saya konfirmasi sendiri. Test bawaan template (tes counter) saya ganti karena tidak sesuai lagi dengan aplikasi ini.
+- Prompt yang saya gunakan:
+"kenapa GridView di dalam SingleChildScrollView butuh `primary: false`?"
+"kenapa `ScaffoldMessenger.of(context)` bisa menemukan Scaffold-nya?"

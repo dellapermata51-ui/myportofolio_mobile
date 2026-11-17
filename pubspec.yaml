@@ -35,6 +35,9 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
 
+  # Pustaka Material (dipisah dari paket flutter sejak Flutter 3.50), sesuai Tutorial 09.
+  material_ui: ^1.11.1
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

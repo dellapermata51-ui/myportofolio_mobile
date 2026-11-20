@@ -100,3 +100,12 @@ Aplikasi kini memiliki halaman **Add Education** yang menyediakan berbagai input
    - `GlobalKey<FormState>` adalah kunci yang dipasang pada widget `Form` agar kita bisa mengakses `FormState` dari luar `Form`, yaitu dari fungsi tombol **Simpan**, untuk memanggil `validate()`, `save()`, dan `reset()`.
    - `validator` adalah fungsi pada tiap field (misalnya `TextFormField`) yang menerima nilai input dan mengembalikan teks pesan kesalahan jika nilainya tidak valid, atau `null` jika valid.
    - `validate()` menjalankan seluruh `validator` di dalam `Form`, menampilkan pesan error pada kolom yang tidak valid, dan mengembalikan `true` hanya jika semua field valid. Pada proyek ini, hasil ringkasan baru ditampilkan setelah `validate()` bernilai `true` dan `save()` menyimpan nilai tiap field lewat `onSaved`.
+
+## AI Disclosure
+- Dalam pengerjaan tugas ini, saya menggunakan Claude (Anthropic) sebagai alat bantu untuk memahami instruksi Tugas 8, mempelajari konsep yang diperlukan, dan mencari referensi solusi teknis. AI membantu memberikan arahan dan kode, namun saya tetap menyesuaikan seluruh saran dengan struktur kode proyek `myportofolio_mobile` yang saya kerjakan di Tutorial 09.
+- AI membantu memberikan penjelasan dan arahan untuk beberapa bagian, seperti formulir Add Education, validasi input, date picker, hasil ringkasan, navigasi, dan pengujian. Namun, saya tetap mengerjakan dan menyesuaikan implementasinya secara mandiri dengan memahami fungsi setiap bagian serta menyesuaikannya dengan struktur kode proyek.
+- Saya memeriksa dan menguji hasil pengerjaan secara mandiri menggunakan `flutter analyze`, `flutter test`, dan `flutter run -d chrome`. Saya juga mencoba langsung alur navigasi, pengisian formulir, validasi, dan hasil ringkasan untuk memastikan seluruh fitur berjalan sesuai instruksi tugas, termasuk pada ukuran layar yang berbeda.
+- Prompt yang saya gunakan:
+"apa bedanya validate(), save(), dan reset() pada FormState, dan kenapa GlobalKey<FormState> dibutuhkan?"
+"bagaimana cara kerja showDatePicker(), dan kenapa perlu mengecek mounted setelah await sebelum memanggil setState?"
+"apa bedanya Navigator.push(), pushReplacement(), dan pop() terhadap tombol kembali, dengan contoh alur kartu ke formulir ke home?"

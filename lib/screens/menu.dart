@@ -1,8 +1,9 @@
 import 'package:material_ui/material_ui.dart';
-import 'package:myportofolio_mobile/widgets/left_drawer.dart';
-import 'package:myportofolio_mobile/widgets/project_card.dart';
+
 import 'package:myportofolio_mobile/screens/education_form.dart';
 import 'package:myportofolio_mobile/screens/project_form.dart';
+import 'package:myportofolio_mobile/widgets/left_drawer.dart';
+import 'package:myportofolio_mobile/widgets/project_card.dart';
 
 class MyHomePage extends StatelessWidget {
   MyHomePage({super.key});
@@ -16,8 +17,18 @@ class MyHomePage extends StatelessWidget {
     ItemHomepage("Lihat Skills", Icons.code, Colors.green),
     ItemHomepage("Lihat Experience", Icons.work, Colors.orange.shade800),
     ItemHomepage("Lihat Proyek", Icons.folder, Colors.purple),
-    ItemHomepage("Tambah Proyek", Icons.add_circle, Colors.brown, pageBuilder: (context) => const ProjectFormPage(),),
-    ItemHomepage("Tambah Education", Icons.school_outlined, Colors.teal, pageBuilder: (context) => const EducationFormPage(),),
+    ItemHomepage(
+      "Tambah Proyek",
+      Icons.add_circle,
+      Colors.brown,
+      pageBuilder: (context) => const ProjectFormPage(),
+    ),
+    ItemHomepage(
+      "Tambah Education",
+      Icons.school_outlined,
+      Colors.teal,
+      pageBuilder: (context) => const EducationFormPage(),
+    ),
     ItemHomepage("Logout", Icons.logout, Colors.red),
   ];
 
@@ -77,6 +88,8 @@ class MyHomePage extends StatelessWidget {
                       crossAxisSpacing: 10,
                       mainAxisSpacing: 10,
                       crossAxisCount: 3,
+                
+                      childAspectRatio: 0.85,
                       shrinkWrap: true,
                       children: items.map((ItemHomepage item) {
                         return ItemCard(item);
@@ -94,6 +107,7 @@ class MyHomePage extends StatelessWidget {
 }
 
 class InfoCard extends StatelessWidget {
+  
   final String title;
   final String content;
 
@@ -102,10 +116,13 @@ class InfoCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
+      
       elevation: 2.0,
       child: Container(
+        
         width: MediaQuery.of(context).size.width / 3.5,
         padding: const EdgeInsets.all(16.0),
+        
         child: Column(
           children: [
             Text(
@@ -125,6 +142,8 @@ class ItemHomepage {
   final String name;
   final IconData icon;
   final Color color;
+
   final WidgetBuilder? pageBuilder;
+
   ItemHomepage(this.name, this.icon, this.color, {this.pageBuilder});
 }

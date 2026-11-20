@@ -70,3 +70,33 @@ Tugas 7 mulai dikembangkan menjadi aplikasi mobile menggunakan Flutter. Aplikasi
 - Prompt yang saya gunakan:
 "kenapa GridView di dalam SingleChildScrollView butuh `primary: false`?"
 "kenapa `ScaffoldMessenger.of(context)` bisa menemukan Scaffold-nya?"
+
+# Tugas 8
+## Deskripsi Proyek
+Aplikasi kini memiliki halaman **Add Education** yang menyediakan berbagai input, seperti nama institusi, jenjang pendidikan, bidang studi, tanggal mulai dan selesai, status pendidikan, serta deskripsi. Formulir dilengkapi validasi untuk memastikan data yang dimasukkan sesuai dengan ketentuan, termasuk validasi isian wajib, dan tanggal pendidikan. Selain itu, ditambahkan hasil ringkasan yang menampilkan data setelah seluruh input berhasil divalidasi. Pengguna dapat mengakses formulir melalui tombol **Tambah Education** pada halaman utama maupun melalui `LeftDrawer`, yang juga menyediakan navigasi kembali ke halaman utama dan halaman tambah proyek.
+
+## Pertanyaan Reflektif
+### Tugas 8
+1. **Perbedaan `Navigator.push()`, `Navigator.pushReplacement()`, dan `Navigator.pop()`**
+
+   - `Navigator.push()` menambahkan halaman baru di atas halaman saat ini. Halaman lama tetap ada di bawahnya sehingga pengguna bisa kembali dengan tombol kembali.
+   - `Navigator.pushReplacement()` mengganti halaman paling atas dengan halaman baru. Halaman lama dibuang dari tumpukan, jadi pengguna tidak bisa kembali ke halaman tersebut.
+   - `Navigator.pop()` menutup halaman paling atas dan kembali ke halaman di bawahnya. Metode ini juga dipakai untuk menutup hasil, seperti pada tombol **Tutup**.
+
+2. **Peran `Scaffold`, `AppBar`, dan `Drawer` dalam menjaga struktur halaman tetap konsisten**
+
+   `Scaffold` menyediakan kerangka halaman Material dengan slot yang sudah baku: `appBar` di atas, `drawer` di sisi kiri, `body` untuk isi, dan area untuk `SnackBar`. Setiap halaman (`MyHomePage`, `ProjectFormPage`, `EducationFormPage`) memakai susunan yang sama, sehingga pengguna selalu menemukan judul di bagian atas dan menu navigasi di tempat yang sama. `LeftDrawer` dibuat sebagai satu widget terpisah dan dipakai ulang di semua halaman, jadi opsi menu dan tampilan drawer selalu sama dan perubahan cukup dilakukan di satu tempat.
+
+   Contoh penggunaan warna tema: `Theme.of(context).colorScheme.primary` (berasal dari `ColorScheme.fromSeed(seedColor: Colors.indigo)` pada `MaterialApp`) dipakai sebagai warna latar `AppBar` di `MyHomePage` dan di `EducationFormPage`, serta sebagai warna tombol **Simpan**. Header `LeftDrawer` memakai warna indigo yang sama, sehingga seluruh halaman terlihat seragam.
+
+3. **Alasan tata letak formulir dan peran widget pengatur jarak serta widget penggulir**
+
+   Formulir disusun vertikal dalam satu kolom (`Column`) karena input diisi berurutan dan mudah dipakai dengan satu tangan di layar ponsel. `Column` dibungkus `SingleChildScrollView`, lalu `ConstrainedBox` dengan `maxWidth: 600` membatasi lebar agar formulir tetap nyaman dibaca di layar lebar seperti Chrome.
+
+   Widget pengatur jarak (`Padding` dan `SizedBox`) memberi ruang antarinput supaya tidak menempel dan mudah disentuh. Namun jarak ini juga menambah tinggi total formulir. Karena itu widget penggulir (`SingleChildScrollView`) diperlukan: ketika ruang layar terbatas atau papan ketik tampil dan mengecilkan area yang tersedia, isi tidak terpotong (*overflow*), melainkan bisa digulir sehingga semua input dan tombol **Simpan** tetap dapat dijangkau. Pengaturan `keyboardDismissBehavior: onDrag` juga membuat papan ketik tertutup saat formulir digeser.
+
+4. **Peran `GlobalKey<FormState>`, `validator`, dan `validate()`**
+
+   - `GlobalKey<FormState>` adalah kunci yang dipasang pada widget `Form` agar kita bisa mengakses `FormState` dari luar `Form`, yaitu dari fungsi tombol **Simpan**, untuk memanggil `validate()`, `save()`, dan `reset()`.
+   - `validator` adalah fungsi pada tiap field (misalnya `TextFormField`) yang menerima nilai input dan mengembalikan teks pesan kesalahan jika nilainya tidak valid, atau `null` jika valid.
+   - `validate()` menjalankan seluruh `validator` di dalam `Form`, menampilkan pesan error pada kolom yang tidak valid, dan mengembalikan `true` hanya jika semua field valid. Pada proyek ini, hasil ringkasan baru ditampilkan setelah `validate()` bernilai `true` dan `save()` menyimpan nilai tiap field lewat `onSaved`.

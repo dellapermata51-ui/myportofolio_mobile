@@ -82,6 +82,7 @@ Aplikasi kini memiliki halaman **Add Education** yang menyediakan berbagai input
    - `Navigator.push()` menambahkan halaman baru di atas halaman saat ini. Halaman lama tetap ada di bawahnya sehingga pengguna bisa kembali dengan tombol kembali.
    - `Navigator.pushReplacement()` mengganti halaman paling atas dengan halaman baru. Halaman lama dibuang dari tumpukan, jadi pengguna tidak bisa kembali ke halaman tersebut.
    - `Navigator.pop()` menutup halaman paling atas dan kembali ke halaman di bawahnya. Metode ini juga dipakai untuk menutup hasil, seperti pada tombol **Tutup**.
+   Untuk membuka formulir dari kartu aksi, proyek ini memakai Navigator.push() (di ItemCard), sehingga halaman utama tetap berada di bawah formulir dan pengguna bisa kembali dengan tombol kembali. Opsi Home di LeftDrawer memakai Navigator.pushReplacement() ke MyHomePage, halaman formulir yang sedang tampil diganti dengan halaman utama, sehingga pengguna langsung sampai di halaman utama.
 
 2. **Peran `Scaffold`, `AppBar`, dan `Drawer` dalam menjaga struktur halaman tetap konsisten**
 
@@ -100,6 +101,7 @@ Aplikasi kini memiliki halaman **Add Education** yang menyediakan berbagai input
    - `GlobalKey<FormState>` adalah kunci yang dipasang pada widget `Form` agar kita bisa mengakses `FormState` dari luar `Form`, yaitu dari fungsi tombol **Simpan**, untuk memanggil `validate()`, `save()`, dan `reset()`.
    - `validator` adalah fungsi pada tiap field (misalnya `TextFormField`) yang menerima nilai input dan mengembalikan teks pesan kesalahan jika nilainya tidak valid, atau `null` jika valid.
    - `validate()` menjalankan seluruh `validator` di dalam `Form`, menampilkan pesan error pada kolom yang tidak valid, dan mengembalikan `true` hanya jika semua field valid. Pada proyek ini, hasil ringkasan baru ditampilkan setelah `validate()` bernilai `true` dan `save()` menyimpan nilai tiap field lewat `onSaved`.
+   Contoh nilai yang ditolak: nama institusi " " (hanya spasi, kosong setelah trim()) atau "UI" (kurang dari 3 karakter). Tanggal selesai juga bisa ditolak: pengguna memilih tanggal selesai lebih dulu, lalu menggeser tanggal mulai ke tanggal setelahnya. Jenis input atau papan ketik hanya mengatur tampilan dan cara mengetik, bukan kebenaran isinya. Pengguna tetap bisa mengetik spasi atau memilih kombinasi tanggal yang tidak masuk akal. Hanya validator yang memeriksa aturan tersebut saat validate() dipanggil.
 
 ## AI Disclosure
 - Dalam pengerjaan tugas ini, saya menggunakan Claude (Anthropic) sebagai alat bantu untuk memahami instruksi Tugas 8, mempelajari konsep yang diperlukan, dan mencari referensi solusi teknis. AI membantu memberikan arahan dan kode, namun saya tetap menyesuaikan seluruh saran dengan struktur kode proyek `myportofolio_mobile` yang saya kerjakan di Tutorial 09.

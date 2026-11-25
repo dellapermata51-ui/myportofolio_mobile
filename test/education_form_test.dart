@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:myportofolio_mobile/main.dart';
+import 'package:myportofolio_mobile/services/api_client.dart';
 
 
 void useMobileScreen(WidgetTester tester) {
@@ -11,7 +12,7 @@ void useMobileScreen(WidgetTester tester) {
 }
 
 Future<void> openFormFromCard(WidgetTester tester) async {
-  await tester.pumpWidget(const MyApp());
+  await tester.pumpWidget(MyApp(apiClient: ApiClient()));
   final card = find.text('Tambah Education');
   await tester.ensureVisible(card);
   await tester.pumpAndSettle();
@@ -64,7 +65,7 @@ void main() {
   testWidgets('Drawer membuka formulir Education dan Home kembali ke utama',
           (WidgetTester tester) async {
         useMobileScreen(tester);
-        await tester.pumpWidget(const MyApp());
+        await tester.pumpWidget(MyApp(apiClient: ApiClient()));
 
         await openDrawer(tester);
         await tester.tap(find.text('Add Education'));

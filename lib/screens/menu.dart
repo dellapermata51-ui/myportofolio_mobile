@@ -2,6 +2,7 @@ import 'package:material_ui/material_ui.dart';
 
 import 'package:myportofolio_mobile/screens/education_form.dart';
 import 'package:myportofolio_mobile/screens/project_form.dart';
+import 'package:myportofolio_mobile/screens/project_list_screen.dart';
 import 'package:myportofolio_mobile/widgets/left_drawer.dart';
 import 'package:myportofolio_mobile/widgets/project_card.dart';
 
@@ -16,12 +17,18 @@ class MyHomePage extends StatelessWidget {
     ItemHomepage("Lihat Education", Icons.school, Colors.blue),
     ItemHomepage("Lihat Skills", Icons.code, Colors.green),
     ItemHomepage("Lihat Experience", Icons.work, Colors.orange.shade800),
-    ItemHomepage("Lihat Proyek", Icons.folder, Colors.purple),
+    ItemHomepage(
+      "Lihat Proyek",
+      Icons.folder,
+      Colors.purple,
+      pageBuilder: (context) => const ProjectListScreen(),
+    ),
     ItemHomepage(
       "Tambah Proyek",
       Icons.add_circle,
       Colors.brown,
       pageBuilder: (context) => const ProjectFormPage(),
+      requiresAuth: true,
     ),
     ItemHomepage(
       "Tambah Education",
@@ -29,7 +36,7 @@ class MyHomePage extends StatelessWidget {
       Colors.teal,
       pageBuilder: (context) => const EducationFormPage(),
     ),
-    ItemHomepage("Logout", Icons.logout, Colors.red),
+    ItemHomepage("Logout", Icons.logout, Colors.red, isLogout: true),
   ];
 
   @override
@@ -145,5 +152,18 @@ class ItemHomepage {
 
   final WidgetBuilder? pageBuilder;
 
-  ItemHomepage(this.name, this.icon, this.color, {this.pageBuilder});
+  // Halaman tujuan hanya boleh dibuka setelah login (lihat ensureLoggedIn).
+  final bool requiresAuth;
+
+  // Kartu ini memicu logout melalui AuthState, bukan navigasi.
+  final bool isLogout;
+
+  ItemHomepage(
+    this.name,
+    this.icon,
+    this.color, {
+    this.pageBuilder,
+    this.requiresAuth = false,
+    this.isLogout = false,
+  });
 }

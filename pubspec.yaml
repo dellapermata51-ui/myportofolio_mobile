@@ -38,6 +38,11 @@ dependencies:
   # Pustaka Material (dipisah dari paket flutter sejak Flutter 3.50), sesuai Tutorial 09.
   material_ui: ^1.11.1
 
+  # Tutorial 10: pemanggilan jaringan, dependency injection, dan serialisasi JSON.
+  http: ^1.2.2
+  provider: ^6.1.2
+  json_annotation: ^4.9.0
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -48,6 +53,10 @@ dev_dependencies:
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   flutter_lints: ^6.0.0
+
+  # Tutorial 10: code generation untuk @JsonSerializable.
+  build_runner: ^2.4.13
+  json_serializable: ^6.9.0
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

@@ -39,9 +39,7 @@ class _ProjectFormPageState extends State<ProjectFormPage> {
     return InputDecoration(
       hintText: hint ?? label,
       labelText: label,
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(5.0),
-      ),
+      border: OutlineInputBorder(borderRadius: BorderRadius.circular(5.0)),
     );
   }
 
@@ -58,7 +56,8 @@ class _ProjectFormPageState extends State<ProjectFormPage> {
       return required ? '$label tidak boleh kosong!' : null;
     }
     final uri = Uri.tryParse(text);
-    final isValid = uri != null &&
+    final isValid =
+        uri != null &&
         (uri.scheme == 'http' || uri.scheme == 'https') &&
         uri.host.isNotEmpty;
     if (!isValid) {
@@ -171,11 +170,7 @@ class _ProjectFormPageState extends State<ProjectFormPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Center(
-          child: Text(
-            'Add Project Form',
-          ),
-        ),
+        title: const Center(child: Text('Add Project Form')),
         backgroundColor: Colors.indigo,
         foregroundColor: Colors.white,
       ),
@@ -202,10 +197,11 @@ class _ProjectFormPageState extends State<ProjectFormPage> {
                 child: TextFormField(
                   controller: _descriptionController,
                   maxLines: 5,
-                  decoration:
-                      _decoration('Description', hint: 'Deskripsi Proyek'),
-                  validator: (value) =>
-                      _validateRequired(value, 'Description'),
+                  decoration: _decoration(
+                    'Description',
+                    hint: 'Deskripsi Proyek',
+                  ),
+                  validator: (value) => _validateRequired(value, 'Description'),
                 ),
               ),
 
@@ -247,11 +243,8 @@ class _ProjectFormPageState extends State<ProjectFormPage> {
                     'Project Image URL (Optional)',
                     hint: 'https://contoh.com/gambar.png',
                   ),
-                  validator: (value) => _validateUrl(
-                    value,
-                    'Project Image URL',
-                    required: false,
-                  ),
+                  validator: (value) =>
+                      _validateUrl(value, 'Project Image URL', required: false),
                 ),
               ),
 

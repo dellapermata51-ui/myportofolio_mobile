@@ -1,7 +1,6 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:myportofolio_mobile/widgets/left_drawer.dart';
 
-
 class EducationFormPage extends StatefulWidget {
   const EducationFormPage({super.key});
 
@@ -34,7 +33,6 @@ class _EducationFormPageState extends State<EducationFormPage> {
     'Desember',
   ];
 
-  
   final _formKey = GlobalKey<FormState>();
   final _endDateFieldKey = GlobalKey<FormFieldState<String>>();
 
@@ -56,7 +54,6 @@ class _EducationFormPageState extends State<EducationFormPage> {
     super.dispose();
   }
 
-
   InputDecoration _decoration(
     String label, {
     String? hint,
@@ -66,16 +63,13 @@ class _EducationFormPageState extends State<EducationFormPage> {
       labelText: label,
       hintText: hint,
       suffixIcon: suffixIcon,
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(5.0),
-      ),
+      border: OutlineInputBorder(borderRadius: BorderRadius.circular(5.0)),
     );
   }
 
   String _formatDate(DateTime date) {
     return '${date.day} ${_months[date.month - 1]} ${date.year}';
   }
-
 
   String? _validateInstitution(String? value) {
     final text = value?.trim() ?? '';
@@ -126,7 +120,6 @@ class _EducationFormPageState extends State<EducationFormPage> {
     }
     return null;
   }
-  
 
   Future<void> _pickDate({required bool isStart}) async {
     final now = DateTime.now();
@@ -246,8 +239,6 @@ class _EducationFormPageState extends State<EducationFormPage> {
     );
   }
 
-  
-
   @override
   Widget build(BuildContext context) {
     final primaryColor = Theme.of(context).colorScheme.primary;
@@ -258,19 +249,19 @@ class _EducationFormPageState extends State<EducationFormPage> {
         backgroundColor: primaryColor,
         foregroundColor: Colors.white,
       ),
-      
+
       drawer: const LeftDrawer(),
       body: Form(
-        key: _formKey,        
+        key: _formKey,
         child: SingleChildScrollView(
           keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
           padding: const EdgeInsets.all(16.0),
-          child: Center(            
+          child: Center(
             child: ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 600),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [                
+                children: [
                   TextFormField(
                     textCapitalization: TextCapitalization.words,
                     decoration: _decoration(
@@ -283,15 +274,17 @@ class _EducationFormPageState extends State<EducationFormPage> {
                     },
                   ),
                   const SizedBox(height: 16.0),
-                  
+
                   DropdownButtonFormField<String>(
                     decoration: _decoration('Jenjang Pendidikan'),
                     initialValue: _defaultDegree,
                     items: _degrees
-                        .map((degree) => DropdownMenuItem(
-                              value: degree,
-                              child: Text(degree),
-                            ))
+                        .map(
+                          (degree) => DropdownMenuItem(
+                            value: degree,
+                            child: Text(degree),
+                          ),
+                        )
                         .toList(),
                     onChanged: (String? newValue) {
                       if (newValue != null) {
@@ -302,7 +295,7 @@ class _EducationFormPageState extends State<EducationFormPage> {
                     },
                   ),
                   const SizedBox(height: 16.0),
-                  
+
                   TextFormField(
                     textCapitalization: TextCapitalization.words,
                     decoration: _decoration(
@@ -315,7 +308,7 @@ class _EducationFormPageState extends State<EducationFormPage> {
                     },
                   ),
                   const SizedBox(height: 16.0),
-              
+
                   TextFormField(
                     controller: _startDateController,
                     readOnly: true,
@@ -328,7 +321,7 @@ class _EducationFormPageState extends State<EducationFormPage> {
                     validator: _validateStartDate,
                   ),
                   const SizedBox(height: 8.0),
-      
+
                   SwitchListTile(
                     contentPadding: EdgeInsets.zero,
                     title: const Text('Masih menempuh pendidikan'),
@@ -336,7 +329,7 @@ class _EducationFormPageState extends State<EducationFormPage> {
                     onChanged: _toggleStudying,
                   ),
                   const SizedBox(height: 8.0),
-                  
+
                   TextFormField(
                     key: _endDateFieldKey,
                     controller: _endDateController,
@@ -351,8 +344,7 @@ class _EducationFormPageState extends State<EducationFormPage> {
                     validator: _validateEndDate,
                   ),
                   const SizedBox(height: 16.0),
-            
-                  
+
                   TextFormField(
                     maxLines: 4,
                     maxLength: 200,

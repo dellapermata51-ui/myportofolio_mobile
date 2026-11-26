@@ -1,5 +1,6 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:myportofolio_mobile/models/project.dart';
+import 'package:myportofolio_mobile/widgets/detail_section.dart';
 
 class ProjectDetailScreen extends StatelessWidget {
   const ProjectDetailScreen({required this.project, super.key});
@@ -42,33 +43,11 @@ class ProjectDetailScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 16),
-            _DetailSection(label: 'Tech Stack', value: project.techStack),
-            _DetailSection(label: 'Description', value: project.description),
-            _DetailSection(label: 'Project URL', value: project.projectUrl),
+            DetailSection(label: 'Tech Stack', value: project.techStack),
+            DetailSection(label: 'Description', value: project.description),
+            DetailSection(label: 'Project URL', value: project.projectUrl),
           ],
         ),
-      ),
-    );
-  }
-}
-
-class _DetailSection extends StatelessWidget {
-  const _DetailSection({required this.label, required this.value});
-
-  final String label;
-  final String value;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(label, style: const TextStyle(fontWeight: FontWeight.bold)),
-          const SizedBox(height: 4),
-          SelectableText(value),
-        ],
       ),
     );
   }

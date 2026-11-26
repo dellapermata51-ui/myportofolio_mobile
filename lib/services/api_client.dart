@@ -56,7 +56,6 @@ class ApiClient {
     return Project.fromJson(decoded);
   }
 
-  
   Future<List<Education>> getEducations() async {
     final response = await _client.get(
       _uri('/api/v1/education/'),
@@ -68,7 +67,6 @@ class ApiClient {
         .map((item) => Education.fromJson(item as Map<String, dynamic>))
         .toList();
   }
-
 
   Future<Education> createEducation(
     Education education, {

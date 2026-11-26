@@ -2,7 +2,6 @@ import 'package:json_annotation/json_annotation.dart';
 
 part 'education.g.dart';
 
-
 @JsonSerializable(fieldRename: FieldRename.snake)
 class Education {
   const Education({
@@ -25,7 +24,6 @@ class Education {
   factory Education.fromJson(Map<String, dynamic> json) =>
       _$EducationFromJson(json);
 
-  
   @JsonKey(includeToJson: false)
   final String? id;
   final String institution;

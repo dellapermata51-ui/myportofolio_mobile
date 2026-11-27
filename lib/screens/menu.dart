@@ -1,6 +1,7 @@
 import 'package:material_ui/material_ui.dart';
 
 import 'package:myportofolio_mobile/screens/education_form.dart';
+import 'package:myportofolio_mobile/screens/education_list_screen.dart';
 import 'package:myportofolio_mobile/screens/project_form.dart';
 import 'package:myportofolio_mobile/screens/project_list_screen.dart';
 import 'package:myportofolio_mobile/widgets/left_drawer.dart';
@@ -14,7 +15,12 @@ class MyHomePage extends StatelessWidget {
   final String kelas = "PBP A";
 
   final List<ItemHomepage> items = [
-    ItemHomepage("Lihat Education", Icons.school, Colors.blue),
+    ItemHomepage(
+      "Lihat Education",
+      Icons.school,
+      Colors.blue,
+      pageBuilder: (context) => const EducationListScreen(),
+    ),
     ItemHomepage("Lihat Skills", Icons.code, Colors.green),
     ItemHomepage("Lihat Experience", Icons.work, Colors.orange.shade800),
     ItemHomepage(
@@ -35,6 +41,7 @@ class MyHomePage extends StatelessWidget {
       Icons.school_outlined,
       Colors.teal,
       pageBuilder: (context) => const EducationFormPage(),
+      requiresAuth: true,
     ),
     ItemHomepage("Logout", Icons.logout, Colors.red, isLogout: true),
   ];

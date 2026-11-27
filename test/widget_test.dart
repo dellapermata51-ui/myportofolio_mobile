@@ -15,10 +15,10 @@ void main() {
       expect(find.text('Class'), findsOneWidget);
 
       // Tekan salah satu tombol, SnackBar harus muncul.
-      await tester.tap(find.text('Lihat Education'));
+      await tester.tap(find.text('Lihat Skills'));
       await tester.pump();
       expect(
-        find.text('Kamu telah menekan tombol Lihat Education!'),
+        find.text('Kamu telah menekan tombol Lihat Skills!'),
         findsOneWidget,
       );
     },

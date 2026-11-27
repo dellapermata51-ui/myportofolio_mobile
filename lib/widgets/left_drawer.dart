@@ -3,6 +3,7 @@ import 'package:myportofolio_mobile/screens/menu.dart';
 import 'package:myportofolio_mobile/screens/project_form.dart';
 import 'package:myportofolio_mobile/screens/project_list_screen.dart';
 import 'package:myportofolio_mobile/screens/education_form.dart';
+import 'package:myportofolio_mobile/screens/education_list_screen.dart';
 import 'package:myportofolio_mobile/services/auth_state.dart';
 import 'package:myportofolio_mobile/widgets/auth_guard.dart';
 import 'package:provider/provider.dart';
@@ -17,6 +18,16 @@ class LeftDrawer extends StatelessWidget {
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(builder: (context) => const ProjectFormPage()),
+    );
+  }
+
+  Future<void> _openEducationForm(BuildContext context) async {
+    // Aksi dilindungi: minta login dulu bila belum terautentikasi.
+    final loggedIn = await ensureLoggedIn(context);
+    if (!loggedIn || !context.mounted) return;
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => const EducationFormPage()),
     );
   }
 
@@ -94,17 +105,21 @@ class LeftDrawer extends StatelessWidget {
             onTap: () => _openProjectForm(context),
           ),
           ListTile(
-            leading: const Icon(Icons.school_outlined),
-            title: const Text('Add Education'),
-            // Navigasi ke halaman tambah education
+            leading: const Icon(Icons.school),
+            title: const Text('Education'),
             onTap: () {
               Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => const EducationFormPage(),
+                  builder: (context) => const EducationListScreen(),
                 ),
               );
             },
+          ),
+          ListTile(
+            leading: const Icon(Icons.school_outlined),
+            title: const Text('Add Education'),
+            onTap: () => _openEducationForm(context),
           ),
           if (!isLoggedIn)
             ListTile(

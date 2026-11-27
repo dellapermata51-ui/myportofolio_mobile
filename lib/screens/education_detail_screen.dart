@@ -25,7 +25,7 @@ class EducationDetailScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            
+            // Only rendered when the API returned a non-empty thumbnail URL.
             if (thumbnail != null && thumbnail.isNotEmpty) ...[
               ClipRRect(
                 borderRadius: BorderRadius.circular(8),
@@ -81,4 +81,5 @@ class EducationDetailScreen extends StatelessWidget {
   }
 }
 
+/// Shows `-` for empty optional fields.
 String _orDash(String value) => value.isEmpty ? '-' : value;

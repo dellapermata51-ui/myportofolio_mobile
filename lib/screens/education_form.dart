@@ -1,5 +1,12 @@
 import 'package:material_ui/material_ui.dart';
+import 'package:myportofolio_mobile/models/education.dart';
+import 'package:myportofolio_mobile/screens/education_list_screen.dart';
+import 'package:myportofolio_mobile/services/api_client.dart';
+import 'package:myportofolio_mobile/services/auth_state.dart';
+import 'package:myportofolio_mobile/utils/date_formatter.dart';
+import 'package:myportofolio_mobile/widgets/auth_guard.dart';
 import 'package:myportofolio_mobile/widgets/left_drawer.dart';
+import 'package:provider/provider.dart';
 
 class EducationFormPage extends StatefulWidget {
   const EducationFormPage({super.key});
@@ -9,29 +16,15 @@ class EducationFormPage extends StatefulWidget {
 }
 
 class _EducationFormPageState extends State<EducationFormPage> {
-  static const String _defaultDegree = 'S1';
-  static const List<String> _degrees = [
-    'SMA/SMK',
-    'D3',
-    'S1',
-    'S2',
-    'S3',
-    'Lainnya',
-  ];
-  static const List<String> _months = [
-    'Januari',
-    'Februari',
-    'Maret',
-    'April',
-    'Mei',
-    'Juni',
-    'Juli',
-    'Agustus',
-    'September',
-    'Oktober',
-    'November',
-    'Desember',
-  ];
+  static const String _defaultLevel = 's1';
+  static const Map<String, String> _levels = {
+    'sd': 'SD',
+    'smp': 'SMP',
+    'sma': 'SMA/SMK',
+    's1': 'S1',
+    's2': 'S2',
+    's3': 'S3',
+  };
 
   final _formKey = GlobalKey<FormState>();
   final _endDateFieldKey = GlobalKey<FormFieldState<String>>();
@@ -40,12 +33,13 @@ class _EducationFormPageState extends State<EducationFormPage> {
   final _endDateController = TextEditingController();
 
   String _institution = '';
-  String _degree = _defaultDegree;
+  String _level = _defaultLevel;
   String _fieldOfStudy = '';
   DateTime? _startDate;
   DateTime? _endDate;
   bool _isStudying = false;
   String _description = '';
+  bool _isSubmitting = false;
 
   @override
   void dispose() {
@@ -65,10 +59,6 @@ class _EducationFormPageState extends State<EducationFormPage> {
       suffixIcon: suffixIcon,
       border: OutlineInputBorder(borderRadius: BorderRadius.circular(5.0)),
     );
-  }
-
-  String _formatDate(DateTime date) {
-    return '${date.day} ${_months[date.month - 1]} ${date.year}';
   }
 
   String? _validateInstitution(String? value) {
@@ -158,10 +148,10 @@ class _EducationFormPageState extends State<EducationFormPage> {
     setState(() {
       if (isStart) {
         _startDate = picked;
-        _startDateController.text = _formatDate(picked);
+        _startDateController.text = formatDate(picked);
       } else {
         _endDate = picked;
-        _endDateController.text = _formatDate(picked);
+        _endDateController.text = formatDate(picked);
       }
     });
   }
@@ -179,13 +169,10 @@ class _EducationFormPageState extends State<EducationFormPage> {
     }
   }
 
-  void _submit() {
-    final formState = _formKey.currentState!;
-    if (!formState.validate()) {
-      return;
-    }
-    formState.save();
-    _showSummaryDialog();
+  void _showSnackBar(String message) {
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(SnackBar(content: Text(message)));
   }
 
   void _resetForm() {
@@ -196,17 +183,89 @@ class _EducationFormPageState extends State<EducationFormPage> {
       _startDate = null;
       _endDate = null;
       _isStudying = false;
-      _degree = _defaultDegree;
+      _level = _defaultLevel;
     });
   }
 
-  void _showSummaryDialog() {
-    final endDateText = _isStudying
-        ? 'Sekarang (masih menempuh pendidikan)'
-        : _formatDate(_endDate!);
-    final descriptionText = _description.isEmpty ? '-' : _description;
+  DateTime _toUtcDate(DateTime date) {
+    return DateTime.utc(date.year, date.month, date.day);
+  }
 
-    showDialog<void>(
+  Future<void> _submit() async {
+    final formState = _formKey.currentState!;
+    if (!formState.validate()) {
+      return;
+    }
+    formState.save();
+
+    final loggedIn = await ensureLoggedIn(context);
+    if (!loggedIn || !mounted) return;
+
+    final token = context.read<AuthState>().token;
+    if (token == null) return;
+
+    final apiClient = context.read<ApiClient>();
+    final endDate = _endDate;
+    final newEducation = Education(
+      institution: _institution,
+      program: _fieldOfStudy,
+      level: _level,
+      description: _description,
+      startedAt: _toUtcDate(_startDate!),
+      endedAt: _isStudying || endDate == null ? null : _toUtcDate(endDate),
+    );
+
+    setState(() {
+      _isSubmitting = true;
+    });
+
+    try {
+      final created = await apiClient.createEducation(
+        newEducation,
+        token: token,
+      );
+      if (!mounted) return;
+      await _showSummaryDialog(created);
+    } on ApiException catch (e) {
+      if (!mounted) return;
+      if (e.statusCode == 401) {
+        // Token tidak valid/kedaluwarsa: logout lalu minta login ulang.
+        await context.read<AuthState>().logout();
+        if (!mounted) return;
+        _showSnackBar('Sesi login berakhir. Silakan login ulang.');
+        await ensureLoggedIn(context);
+      } else if (e.statusCode == 403) {
+        _showSnackBar(
+          'Kamu tidak memiliki izin menambah Education. '
+          'Hanya pemilik portofolio yang dapat menambah data.',
+        );
+      } else if (e.statusCode == 400) {
+        _showSnackBar('Data tidak valid. Periksa kembali isian kamu.');
+      } else {
+        _showSnackBar('Gagal menyimpan data pendidikan (${e.statusCode}).');
+      }
+    } on Exception {
+      if (!mounted) return;
+      _showSnackBar('Tidak dapat terhubung ke server. Coba lagi nanti.');
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isSubmitting = false;
+        });
+      }
+    }
+  }
+
+  Future<void> _showSummaryDialog(Education created) async {
+    final endedAt = created.endedAt;
+    final endDateText = endedAt == null
+        ? 'Sekarang (masih menempuh pendidikan)'
+        : formatDate(endedAt.toUtc());
+    final descriptionText = created.description.isEmpty
+        ? '-'
+        : created.description;
+
+    final openList = await showDialog<bool>(
       context: context,
       builder: (dialogContext) {
         return AlertDialog(
@@ -216,10 +275,10 @@ class _EducationFormPageState extends State<EducationFormPage> {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Institusi: $_institution'),
-                Text('Jenjang: $_degree'),
-                Text('Bidang Studi: $_fieldOfStudy'),
-                Text('Tanggal Mulai: ${_formatDate(_startDate!)}'),
+                Text('Institusi: ${created.institution}'),
+                Text('Jenjang: ${created.levelDisplay}'),
+                Text('Bidang Studi: ${created.program}'),
+                Text('Tanggal Mulai: ${formatDate(created.startedAt.toUtc())}'),
                 Text('Tanggal Selesai: $endDateText'),
                 Text('Deskripsi: $descriptionText'),
               ],
@@ -228,15 +287,26 @@ class _EducationFormPageState extends State<EducationFormPage> {
           actions: [
             TextButton(
               child: const Text('Tutup'),
-              onPressed: () {
-                Navigator.pop(dialogContext);
-                _resetForm();
-              },
+              onPressed: () => Navigator.pop(dialogContext, false),
+            ),
+            TextButton(
+              child: const Text('Lihat Daftar'),
+              onPressed: () => Navigator.pop(dialogContext, true),
             ),
           ],
         );
       },
     );
+
+    if (!mounted) return;
+    if (openList ?? false) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => const EducationListScreen()),
+      );
+    } else {
+      _resetForm();
+    }
   }
 
   @override
@@ -277,19 +347,19 @@ class _EducationFormPageState extends State<EducationFormPage> {
 
                   DropdownButtonFormField<String>(
                     decoration: _decoration('Jenjang Pendidikan'),
-                    initialValue: _defaultDegree,
-                    items: _degrees
+                    initialValue: _defaultLevel,
+                    items: _levels.entries
                         .map(
-                          (degree) => DropdownMenuItem(
-                            value: degree,
-                            child: Text(degree),
+                          (level) => DropdownMenuItem(
+                            value: level.key,
+                            child: Text(level.value),
                           ),
                         )
                         .toList(),
                     onChanged: (String? newValue) {
                       if (newValue != null) {
                         setState(() {
-                          _degree = newValue;
+                          _level = newValue;
                         });
                       }
                     },
@@ -365,8 +435,17 @@ class _EducationFormPageState extends State<EducationFormPage> {
                         backgroundColor: primaryColor,
                         foregroundColor: Colors.white,
                       ),
-                      onPressed: _submit,
-                      child: const Text('Simpan'),
+                      onPressed: _isSubmitting ? null : _submit,
+                      child: _isSubmitting
+                          ? const SizedBox(
+                              height: 20,
+                              width: 20,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: Colors.white,
+                              ),
+                            )
+                          : const Text('Simpan'),
                     ),
                   ),
                 ],

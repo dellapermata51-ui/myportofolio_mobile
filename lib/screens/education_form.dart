@@ -219,40 +219,47 @@ class _EducationFormPageState extends State<EducationFormPage> {
       _isSubmitting = true;
     });
 
+    final Education created;
     try {
-      final created = await apiClient.createEducation(
-        newEducation,
-        token: token,
-      );
-      if (!mounted) return;
-      await _showSummaryDialog(created);
+      created = await apiClient.createEducation(newEducation, token: token);
     } on ApiException catch (e) {
       if (!mounted) return;
-      if (e.statusCode == 401) {
-        // Token tidak valid/kedaluwarsa: logout lalu minta login ulang.
-        await context.read<AuthState>().logout();
-        if (!mounted) return;
-        _showSnackBar('Sesi login berakhir. Silakan login ulang.');
-        await ensureLoggedIn(context);
-      } else if (e.statusCode == 403) {
-        _showSnackBar(
-          'Kamu tidak memiliki izin menambah Education. '
-          'Hanya pemilik portofolio yang dapat menambah data.',
-        );
-      } else if (e.statusCode == 400) {
-        _showSnackBar('Data tidak valid. Periksa kembali isian kamu.');
-      } else {
-        _showSnackBar('Gagal menyimpan data pendidikan (${e.statusCode}).');
-      }
+      _stopSubmitting();
+      await _handleApiError(e);
+      return;
     } on Exception {
       if (!mounted) return;
+      _stopSubmitting();
       _showSnackBar('Tidak dapat terhubung ke server. Coba lagi nanti.');
-    } finally {
-      if (mounted) {
-        setState(() {
-          _isSubmitting = false;
-        });
-      }
+      return;
+    }
+
+    if (!mounted) return;
+    _stopSubmitting();
+    await _showSummaryDialog(created);
+  }
+
+  void _stopSubmitting() {
+    setState(() {
+      _isSubmitting = false;
+    });
+  }
+
+  Future<void> _handleApiError(ApiException e) async {
+    if (e.statusCode == 401) {
+      await context.read<AuthState>().logout();
+      if (!mounted) return;
+      _showSnackBar('Sesi login berakhir. Silakan login ulang.');
+      await ensureLoggedIn(context);
+    } else if (e.statusCode == 403) {
+      _showSnackBar(
+        'Kamu tidak memiliki izin menambah Education. '
+        'Hanya pemilik portofolio yang dapat menambah data.',
+      );
+    } else if (e.statusCode == 400) {
+      _showSnackBar('Data tidak valid. Periksa kembali isian kamu.');
+    } else {
+      _showSnackBar('Gagal menyimpan data pendidikan (${e.statusCode}).');
     }
   }
 

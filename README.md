@@ -1,5 +1,30 @@
 # MyPortfolio Mobile - Della Permata Prasilda - 2506656614 - A
 
+[![CI](https://github.com/<USERNAME>/<REPO>/actions/workflows/main.yaml/badge.svg)](https://github.com/<USERNAME>/<REPO>/actions/workflows/main.yaml)
+
+## Setup
+Backend: repositori Django `myportofolio` (https://github.com/dellapermata51-ui/myportofolio) yang sudah di-deploy di https://della-permata51-myportofolio.pws.cs.ui.ac.id. 
+
+1. Pasang dependency dan hasilkan kode JSON (`*.g.dart` tidak ikut di-commit karena ada di `.gitignore`):
+   ```bash
+   flutter pub get
+   dart run build_runner build --delete-conflicting-outputs
+   ```
+2. Jalankan backend lokal (opsional): `pip install -r requirements.txt`, `python manage.py migrate`, `python manage.py createsuperuser`, lalu `python manage.py runserver`.
+3. Jalankan aplikasi dengan `API_BASE_URL` yang sesuai:
+   ```bash
+   # Emulator Android (default: http://10.0.2.2:8000)
+   flutter run
+
+   # Chrome terhadap server lokal
+   flutter run -d chrome --dart-define=API_BASE_URL=http://localhost:8000
+
+   # Terhadap backend yang sudah di-deploy
+   flutter run --dart-define=API_BASE_URL=https://della-permata51-myportofolio.pws.cs.ui.ac.id
+   ```
+4. Login memakai akun **superuser** Django. Membaca daftar Education bersifat publik, tetapi menambah Education (`POST`) hanya diizinkan untuk pemilik portofolio; akun biasa akan menerima `403`.
+5. Pemeriksaan kualitas yang sama dengan CI: `dart format --output=none --set-exit-if-changed .`, `flutter analyze`, dan `flutter test`.
+6. Agar artefak APK di CI memakai backend yang benar, isi variabel repositori GitHub `API_BASE_URL` (Settings → Secrets and variables → Actions → Variables).
 
 # Tugas 7
 ## Deskripsi Proyek
@@ -111,3 +136,44 @@ Aplikasi kini memiliki halaman **Add Education** yang menyediakan berbagai input
 "apa bedanya validate(), save(), dan reset() pada FormState, dan kenapa GlobalKey<FormState> dibutuhkan?"
 "bagaimana cara kerja showDatePicker(), dan kenapa perlu mengecek mounted setelah await sebelum memanggil setState?"
 "apa bedanya Navigator.push(), pushReplacement(), dan pop() terhadap tombol kembali, dengan contoh alur kartu ke formulir ke home?"
+
+# Tugas 9
+## Deskripsi Proyek
+Aplikasi kini terintegrasi dengan backend Django REST Framework untuk fitur **Education**. Pengguna dapat melihat daftar dan detail Education secara publik, sedangkan penambahan data Education memerlukan login dan autentikasi menggunakan token. Daftar Education ditampilkan dengan fitur *loading, error, dan empty state*, serta dapat diperbarui melalui tombol **Retry** atau dengan menarik layar ke bawah (*pull-to-refresh*). Pengguna juga dapat membuka detail Education untuk melihat informasi lengkapnya. Formulir **Add Education** dari Tugas 8 kini terhubung ke API, sehingga data yang diisi akan dikirim ke server setelah validasi dan autentikasi berhasil. Jika login sudah tidak valid, aplikasi akan meminta pengguna login kembali, sedangkan error lain ditampilkan melalui `SnackBar`. Selain itu, ditambahkan pengujian otomatis untuk API, `model`, `daftar`, `detail`, dan `formulir`, serta **CI/CD** menggunakan **GitHub Actions** untuk memeriksa kode dan membangun APK *release* secara otomatis.
+
+## Pertanyaan Reflektif
+### Assignment 9
+1. **Mengapa kita menggunakan `@JsonSerializable(fieldRename: FieldRename.snake)` dan `@JsonKey(includeToJson: false)` alih-alih mengirim objek `Map<String, dynamic>` mentah langsung dari widget? Jelaskan satu bug yang dicegah atau dapat dicegah oleh pendekatan ini pada model bagianmu.**
+
+   `@JsonSerializable(fieldRename: FieldRename.snake)` membantu mengubah nama variabel Dart menjadi format yang sesuai dengan API, misalnya `startedAt` menjadi `started_at`. Dengan model `Education`, proses mengubah data JSON menjadi objek Dart dan sebaliknya dilakukan secara otomatis, sehingga kode lebih rapi dan mengurangi kesalahan penulisan key atau tipe data.
+
+   `@JsonKey(includeToJson: false)` digunakan untuk field yang berasal dari server, seperti `id`, `star_count`, dan `is_starred`, agar tidak ikut dikirim ketika membuat Education baru. Berbeda dengan `Map<String, dynamic>` yang key dan tipe datanya harus diatur secara manual, penggunaan model membuat struktur data lebih konsisten dan kesalahan lebih mudah diketahui.
+
+   Contohnya, API menggunakan nama field `program`, bukan `field_of_study`. Jika menggunakan `Map` dengan nama key yang salah, data bidang studi bisa tidak tersimpan tanpa disadari. Dengan model Education, nama field yang digunakan lebih terarah dan sesuai dengan struktur API.
+
+2. **Mengapa Future yang diteruskan ke `FutureBuilder` harus diinisialisasi di dalam `initState()` alih-alih langsung di dalam `build()`, dan mengapa `ApiClient` sebaiknya melempar `ApiException` daripada mengembalikan `null` pada respons HTTP non-2xx?**
+
+   `build()` bisa dipanggil berkali-kali, misalnya saat keyboard atau orientasi layar berubah, tema berubah, atau `setState()` dipanggil. Jika `getEducations()` dipanggil langsung di `build()`, setiap rebuild membuat `Future` baru sehingga `FutureBuilder` kembali ke status loading, request jaringan dikirim berulang, dan layar berkedip. Dengan membuat `Future` sekali di `initState()` dan menggantinya hanya saat Retry atau tarik-untuk-segarkan (`_reload`), request hanya terjadi saat memang diperlukan.
+
+   `ApiClient` melempar `ApiException` (berisi `statusCode`) karena `null` tidak bisa membedakan penyebab kegagalan: daftar kosong, `401` (token tidak valid), `403` (tidak punya izin), `400` (data tidak valid), atau `500`. Penanganan yang berbeda hanya mungkin jika status kodenya sampai ke UI, misalnya `401` menghapus sesi lalu membuka login, `403` menampilkan pesan izin, dan error dari `FutureBuilder` menampilkan tombol Retry. Mengembalikan `null` juga membuat kegagalan mudah terlewat dan baru muncul sebagai error `Null check operator` atau tampilan kosong di tempat lain.
+
+3. **Bandingkan `SessionAuthentication` milik Django (dari Tutorial 04/07) dengan `TokenAuthentication` milik DRF (dari Tutorial 10). Mengapa `myportfolio_mobile` menggunakan `TokenAuthentication` sementara `SessionAuthentication` tetap diaktifkan pada backend Django?**
+
+   `SessionAuthentication` menggunakan `sessionId` dan cookie yang biasanya disimpan oleh browser. Untuk request yang mengubah data, autentikasi ini membutuhkan CSRF token sebagai perlindungan tambahan. Sementara itu, `TokenAuthentication `menggunakan token yang dikirim melalui header Authorization, sehingga klien harus menyertakan token pada request yang membutuhkan autentikasi.
+
+   Pada aplikasi Flutter, `TokenAuthentication` lebih sesuai karena aplikasi mobile tidak bergantung pada `sessionId` dan cookie seperti browser. Token disimpan di `AuthState` dan digunakan saat mengirim request, misalnya untuk menambahkan Education. `SessionAuthentication` tetap digunakan karena website Django masih membutuhkan session untuk proses login dan request dari browser. Jadi, keduanya tetap aktif karena digunakan oleh klien yang berbeda.
+
+4. **Jelaskan peran job `build` (`very_good_workflows`) dan `build_apk` dalam pipeline `.github/workflows/main.yaml` milikmu (termasuk pemeriksaan apa saja yang dijalankan `very_good_workflows` di balik layar). Mengapa berkas `*.g.dart` dimasukkan ke `.gitignore` meskipun CI membutuhkannya untuk menganalisis dan membangun aplikasi?**
+
+   Job `build` pada **GitHub Actions** berfungsi untuk memeriksa kualitas kode, mulai dari mengunduh dependency, menjalankan `build_runner`, memeriksa format kode, menjalankan `flutter analyze`, hingga menjalankan test dan mengecek coverage. Jika semua proses berhasil, job `build_apk` akan dijalankan untuk membuat APK release yang dapat diunduh sebagai artefak.
+
+   File `*.g.dart` dimasukkan ke `.gitignore` karena merupakan file hasil generate yang dapat dibuat kembali menggunakan `build_runner`. Dengan tidak memasukkannya ke Git, repository menjadi lebih rapi dan mengurangi risiko file hasil generate yang sudah tidak sesuai dengan model terbaru. CI tetap dapat berjalan karena file tersebut dibuat ulang sebelum proses **analisis, testing, maupun build APK dilakukan.**
+
+## AI Disclosure
+- Dalam pengerjaan tugas ini, saya menggunakan Claude (Anthropic) sebagai alat bantu untuk memahami instruksi Tugas 9, membaca struktur backend Django, serta menyusun kode integrasi Education di proyek `myportofolio_mobile` yang sudah memiliki pola dari Tutorial 10.
+- AI membantu memberikan arahan pengerjaan secara bertahap, mulai dari memahami `model`, `serializer`, dan `permission` pada backend, hingga mengimplementasikan API, halaman daftar dan detail Education, autentikasi, formulir, serta pengujian otomatis. Saya juga menggunakan AI untuk membantu memahami konsep.
+- Saya menyesuaikan kode dan saran yang diberikan AI dengan struktur proyek, serta memeriksa kembali fungsi setiap bagian. Saya juga menjalankan pengujian secara mandiri untuk memastikan fitur berjalan sesuai instruksi tugas, termasuk alur login, melihat daftar Education, menambahkan data, dan menangani error autentikasi.
+- Prompt yang saya gunakan:
+"di ApiClient.createEducation(), kenapa bodynya jsonEncode(education.toJson()) dan kenapa header Authorization memakai format Token <key>?"
+"kenapa Future untuk FutureBuilder harus dibuat di initState(), bukan di build()?"
+"kenapa pumpAndSettle bisa timeout kalau ada CircularProgressIndicator yang masih tampil?"
